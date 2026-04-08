@@ -13,7 +13,10 @@ import {
   User,
   LogIn,
   LogOut,
+  Search,
 } from 'lucide-react'
+import { useState, useMemo } from 'react'
+import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
 import type { Chat } from '@/lib/types'
 
@@ -42,6 +45,30 @@ export const Sidebar = memo(function Sidebar({
   onLogout,
   onAuth,
 }: SidebarProps) {
+  const [searchQuery, setSearchQuery] = useState('')
+
+  const filteredChats = useMemo(() => {
+    if (!searchQuery.trim()) return chats
+
+    const query = searchQuery.toLowerCase()
+    return chats.filter((chat) => {
+      // Search in title
+      if (chat.title.toLowerCase().includes(query)) return true
+
+      // Search in messages
+      return chat.messages?.some((msg: any) => {
+        // Handle various message content formats
+        const content = typeof msg.content === 'string' 
+          ? msg.content 
+          : Array.isArray(msg.parts) 
+            ? msg.parts.map((p: any) => p.text || '').join(' ') 
+            : ''
+            
+        return content.toLowerCase().includes(query)
+      }) || false
+    })
+  }, [chats, searchQuery])
+
   return (
     <>
       {/* Mobile overlay */}
@@ -83,7 +110,7 @@ export const Sidebar = memo(function Sidebar({
             </div>
 
             {/* New Chat Button */}
-            <div className="p-3">
+            <div className="p-3 space-y-3">
               <Button
                 onClick={onNewChat}
                 className="w-full justify-start gap-2 bg-sidebar-accent hover:bg-sidebar-accent/80 text-sidebar-accent-foreground"
@@ -91,17 +118,27 @@ export const Sidebar = memo(function Sidebar({
                 <Plus className="h-4 w-4" />
                 New Chat
               </Button>
+
+              <div className="relative">
+                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search chats..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-9 bg-sidebar-accent/30 border-sidebar-border focus-visible:ring-sidebar-ring h-9 text-sm"
+                />
+              </div>
             </div>
 
             {/* Chat List */}
             <ScrollArea className="flex-1 px-3">
               <div className="space-y-1 pb-4">
-                {chats.length === 0 ? (
+                {filteredChats.length === 0 ? (
                   <div className="text-sm text-muted-foreground text-center py-8 px-4">
-                    No conversations yet. Start a new chat!
+                    {searchQuery ? 'No results found.' : 'No conversations yet. Start a new chat!'}
                   </div>
                 ) : (
-                  chats.map((chat) => (
+                  filteredChats.map((chat) => (
                     <div
                       key={chat.id}
                       className={cn(

@@ -1,6 +1,7 @@
 export interface Chat {
   id: string
   title: string
+  messages: any[]
   createdAt: Date
   updatedAt: Date
 }
