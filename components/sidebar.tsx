@@ -96,17 +96,14 @@ export const Sidebar = memo(function Sidebar({
                     <div
                       key={chat.id}
                       className={cn(
-                        'group flex items-center gap-2 rounded-lg px-3 py-2 cursor-pointer transition-colors',
+                        'group relative flex items-center gap-2 rounded-lg px-3 py-2 pr-10 cursor-pointer transition-colors',
                         currentChatId === chat.id
                           ? 'bg-sidebar-primary/10 text-sidebar-primary'
                           : 'text-sidebar-foreground hover:bg-sidebar-accent'
                       )}
                       onClick={() => onSelectChat(chat.id)}
                     >
-                      <MessageSquare className="h-4 w-4 flex-shrink-0" />
-                      <span className="flex-1 truncate text-sm">
-                        {chat.title}
-                      </span>
+                      <MessageSquare className="h-4 w-4 shrink-0" />
                       <Button
                         variant="ghost"
                         size="icon"
@@ -114,11 +111,14 @@ export const Sidebar = memo(function Sidebar({
                           e.stopPropagation()
                           onDeleteChat(chat.id)
                         }}
-                        className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive hover:bg-transparent"
+                        className="h-8 w-8 shrink-0 text-red-400 hover:text-red-500 hover:bg-red-500/10"
                       >
-                        <Trash2 className="h-3 w-3" />
+                        <Trash2 className="h-4 w-4" />
                         <span className="sr-only">Delete chat</span>
                       </Button>
+                      <span className="flex-1 truncate text-sm">
+                        {chat.title}
+                      </span>
                     </div>
                   ))
                 )}
