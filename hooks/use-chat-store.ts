@@ -20,14 +20,22 @@ interface ChatWithMessages extends Chat {
   messages: UIMessage[]
 }
 
-export function useChatStore() {
+export function useChatStore(userId?: string) {
   const [chats, setChats] = useState<ChatWithMessages[]>([])
   const [currentChatId, setCurrentChatId] = useState<string | null>(null)
   const [isLoaded, setIsLoaded] = useState(false)
 
-  // Load from Supabase on mount
+  // Load from Supabase on mount or user change
   useEffect(() => {
-    supabase.from('chats').select('*').order('updated_at', { ascending: false })
+    let query = supabase.from('chats').select('*')
+    
+    if (userId) {
+      query = query.eq('user_id', userId)
+    } else {
+      query = query.is('user_id', null)
+    }
+
+    query.order('updated_at', { ascending: false })
       .then(({data, error}) => {
         if (data && !error) {
           const loadedChats = data.map(d => ({
@@ -45,7 +53,7 @@ export function useChatStore() {
         }
         setIsLoaded(true)
       })
-  }, [])
+  }, [userId])
 
   const currentChat = chats.find((c) => c.id === currentChatId) || null
 
@@ -64,12 +72,13 @@ export function useChatStore() {
       id: newChat.id,
       title: newChat.title,
       messages: newChat.messages,
+      user_id: userId || null,
       created_at: newChat.createdAt.toISOString(),
       updated_at: newChat.updatedAt.toISOString()
     }).then(({error}) => { if (error) console.error('Supabase error:', error) })
 
     return newChat.id
-  }, [])
+  }, [userId])
 
   const selectChat = useCallback((chatId: string) => {
     setCurrentChatId(chatId)

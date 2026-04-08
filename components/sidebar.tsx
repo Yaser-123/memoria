@@ -10,11 +10,15 @@ import {
   PanelLeftClose,
   PanelLeft,
   Sparkles,
+  User,
+  LogIn,
+  LogOut,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { Chat } from '@/lib/types'
 
 interface SidebarProps {
+  user: any
   chats: Chat[]
   currentChatId: string | null
   isOpen: boolean
@@ -22,9 +26,12 @@ interface SidebarProps {
   onNewChat: () => void
   onSelectChat: (chatId: string) => void
   onDeleteChat: (chatId: string) => void
+  onLogout: () => void
+  onAuth: () => void
 }
 
 export const Sidebar = memo(function Sidebar({
+  user,
   chats,
   currentChatId,
   isOpen,
@@ -32,6 +39,8 @@ export const Sidebar = memo(function Sidebar({
   onNewChat,
   onSelectChat,
   onDeleteChat,
+  onLogout,
+  onAuth,
 }: SidebarProps) {
   return (
     <>
@@ -126,8 +135,36 @@ export const Sidebar = memo(function Sidebar({
             </ScrollArea>
 
             {/* Footer */}
-            <div className="p-4 border-t border-sidebar-border">
-              <p className="text-xs text-muted-foreground text-center">
+            <div className="p-4 border-t border-sidebar-border space-y-4">
+              {user ? (
+                <div className="flex items-center justify-between gap-2 bg-sidebar-accent/50 p-2 rounded-lg">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
+                      <User className="w-4 h-4 text-primary" />
+                    </div>
+                    <span className="text-xs font-medium truncate text-sidebar-foreground">
+                      {user.email}
+                    </span>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={onLogout}
+                    className="h-8 w-8 hover:text-destructive shrink-0"
+                  >
+                    <LogOut className="h-4 w-4" />
+                  </Button>
+                </div>
+              ) : (
+                <Button
+                  onClick={onAuth}
+                  className="w-full justify-start gap-2 bg-primary/90 hover:bg-primary text-primary-foreground"
+                >
+                  <LogIn className="h-4 w-4" />
+                  Sign In to Sync
+                </Button>
+              )}
+              <p className="text-[10px] text-muted-foreground text-center">
                 Powered by Gemini 2.5 Flash
               </p>
             </div>
