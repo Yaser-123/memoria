@@ -4,7 +4,7 @@ import { createGoogleGenerativeAI } from '@ai-sdk/google'
 export const maxDuration = 60
 
 const google = createGoogleGenerativeAI({
-  apiKey: 'AIzaSyDiuOux6SlfFPyRYi8r_oEY5jDNFcyn7wo',
+  apiKey: process.env.GEMINI_API_KEY || '',
 })
 
 export async function POST(req: Request) {
